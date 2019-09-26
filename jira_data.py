@@ -11,7 +11,6 @@ class JiraData:
         self.jira_api_token = os.environ['JIRA_API_TOKEN']
 
         self.url = f"{self.jira_url}/rest/api/2/search"
-
         self.auth = HTTPBasicAuth(username=self.jira_username, password=self.jira_api_token)
 
         self.params = {
@@ -29,10 +28,9 @@ class JiraData:
             params=self.params,
             auth=self.auth
         )
-
         return response
 
-    def request(self):
+    def get_data(self):
         response = self.__run_request()
         data = json.loads(response.text)
 
@@ -46,5 +44,6 @@ class JiraData:
 
         return data
 
+
 if __name__ == "__main__":
-    data = JiraData().request()
+    jira_data = JiraData().get_data()
