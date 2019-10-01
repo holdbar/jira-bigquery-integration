@@ -19,6 +19,7 @@ class JiraData:
             'startAt': 0,
             'maxResults': 100
         }
+        self.data = {}
 
     def __run_request(self):
         response = requests.request(
@@ -32,18 +33,25 @@ class JiraData:
 
     def get_data(self):
         response = self.__run_request()
-        data = json.loads(response.text)
+        self.data = json.loads(response.text)
 
-        total_records = data['total']
+        total_records = self.data['total']
 
         while self.params['startAt'] <= total_records:
             self.params['startAt'] += data['maxResults']
             response = self.__run_request()
             response_json = json.loads(response.text)
-            data['issues'] += response_json['issues']
+            self.data['issues'] += response_json['issues']
 
-        return data
+        return self
+
+    def make_schema(self):
+        names = list(self.data['names'].values())
+        names = [x.lower().replace(' ', '_') for x in names]
+
+        return names
 
 
 if __name__ == "__main__":
     jira_data = JiraData().get_data()
+    print(jira_data.make_schema())
