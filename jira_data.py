@@ -38,7 +38,7 @@ class JiraData:
         total_records = self.data['total']
 
         while self.params['startAt'] <= total_records:
-            self.params['startAt'] += data['maxResults']
+            self.params['startAt'] += self.data['maxResults']
             response = self.__run_request()
             response_json = json.loads(response.text)
             self.data['issues'] += response_json['issues']
@@ -46,10 +46,39 @@ class JiraData:
         return self
 
     def make_schema(self):
-        names = list(self.data['names'].values())
-        names = [x.lower().replace(' ', '_') for x in names]
+        jira_bigquery_types = {
+            'datetime': 'DATETIME',
+            'issuetype': 'STRING',
+            'array': 'STRING',
+            'number': 'INT64',
+            'project': 'STRING',
+            'resolution': 'STRING',
+            'any': 'STRING',
+            'date': 'DATE',
+            'option': 'STRING',
+            'watches': 'STRING',
+            'priority': 'STRING',
+            'sd-approvals': 'STRING',
+            'user': 'STRING',
+            'status': 'STRING',
+            'string': 'STRING',
+            'timetracking': 'STRING',
+            'securitylevel': 'STRING',
+            'progress': 'STRING',
+            'sd-customerrequesttype': 'STRING',
+            'sd-feedback': 'STRING',
+            'comments-page': 'STRING',
+            'votes': 'STRING'
+        }
 
-        return names
+        names = [x.lower().replace(' ', '_') for x in list(self.data['names'].values())]
+        types = [x['type'] for x in list(self.data['schema'].values())]
+
+        schema = []
+        for number in range(len(names)):
+            schema += [{'name': names[number], 'type': jira_bigquery_types[types[number]]}]
+
+        return schema
 
 
 if __name__ == "__main__":
