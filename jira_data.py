@@ -2,6 +2,7 @@ import os
 import json
 import requests
 from requests.auth import HTTPBasicAuth
+from google.cloud import bigquery
 
 
 class JiraData:
@@ -17,7 +18,7 @@ class JiraData:
             'fields': ['*all'],
             'expand': 'schema,names,transitions,operations,changelog,versionedRepresentations',
             'startAt': 0,
-            'maxResults': 100
+            'maxResults': 2
         }
         self.data = {}
 
@@ -37,7 +38,7 @@ class JiraData:
 
         total_records = self.data['total']
 
-        while self.params['startAt'] <= total_records:
+        while self.params['startAt'] <= 2:
             self.params['startAt'] += self.data['maxResults']
             response = self.__run_request()
             response_json = json.loads(response.text)
@@ -75,10 +76,14 @@ class JiraData:
         types = [x['type'] for x in list(self.data['schema'].values())]
 
         schema = []
+        bq_schema = []
         for number in range(len(names)):
             schema += [{'name': names[number], 'type': jira_bigquery_types[types[number]]}]
+            column_name = names[number]
+            column_type = jira_bigquery_types[types[number]]
+            bq_schema.append(bigquery.SchemaField(column_name, column_type))
 
-        return schema
+        return bq_schema
 
 
 if __name__ == "__main__":
