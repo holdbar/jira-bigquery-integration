@@ -30,29 +30,3 @@ class BigQuery:
             print('Already Exists: Table {table.full_table_id}')
         except Exception as error:
             print(error)
-
-    @staticmethod
-    def convert_postgres_schema_to_bigquery(jira_schema):
-        bigquery_schema = []
-
-        for line in jira_schema:
-
-            column_name = line['column_name']
-            column_type = line['data_type']
-
-            if column_type == 'bigint':
-                column_type = 'INTEGER'
-
-            if 'timestamp' in column_type.split():
-                column_type = 'DATETIME'
-
-            if 'character' in column_type.split() or column_type in ['text', 'USER-DEFINED']:
-                column_type = 'STRING'
-
-            if 'jsonb' in column_type.split():
-                column_type = 'STRING'
-
-            bigquery_schema.append(bigquery.SchemaField(column_name, column_type))
-
-
-
