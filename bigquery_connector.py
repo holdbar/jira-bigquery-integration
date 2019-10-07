@@ -30,8 +30,3 @@ class BigQuery:
             print('Already Exists: Table {table.full_table_id}')
         except Exception as error:
             print(error)
-
-
-
-
-
